@@ -2,60 +2,38 @@ package com.journal.demo.controller
 
 import com.journal.demo.data.Todo
 import org.springframework.http.MediaType
+import com.journal.demo.service.TodoService
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
 @RequestMapping("/todos")
 class TodoController {
+
+    @Autowired
+    private lateinit var service: TodoService
+
     @GetMapping(
             produces = arrayOf(MediaType.APPLICATION_JSON_VALUE)
     )
-    fun getTodos(): List<Todo> {
-        return listOf(
-                Todo(
-                        UUID.randomUUID().toString(),
-                        "My first todo",
-                        "This is a message for the 1st todo.",
-                        System.currentTimeMillis()
-                ),
-                Todo(
-                        UUID.randomUUID().toString(),
-                        "My second todo",
-                        "This is a message for the 2nd todo.",
-                        System.currentTimeMillis()
-                )
-        )
-    }
+    fun getTodos(): List<Todo> = service.getTodos()
 
     @PutMapping(
             produces = arrayOf(MediaType.APPLICATION_JSON_VALUE),
             consumes = arrayOf(MediaType.APPLICATION_JSON_VALUE)
     )
-    fun insertTodo(
-            @RequestBody todo: Todo
-    ): Todo {
-        todo.id == UUID.randomUUID().toString()
-        return todo
-    }
+    fun insertTodo(@RequestBody todo: Todo): Todo = service.insertTodo(todo)
 
     @DeleteMapping(
-            value = ["/delete/{id}"],
+            value = ["/{id}"],
             produces = arrayOf(MediaType.APPLICATION_JSON_VALUE)
     )
-    fun deleteTodo(@PathVariable(name="id") id: String): Boolean {
-        println("Removing: $id")
-        return true
-    }
+    fun deleteTodo(@PathVariable(name="id") id: String): Boolean = service.deleteTodo(id)
 
     @PostMapping(
             produces = arrayOf(MediaType.APPLICATION_JSON_VALUE),
             consumes = arrayOf(MediaType.APPLICATION_JSON_VALUE)
     )
-    fun updateTodo(@RequestBody todo: Todo): Todo {
-        todo.title += " [ updated ] "
-        todo.message += " [ updated ] "
-        todo.schedule = System.currentTimeMillis()
-        return todo
-    }
+    fun updateTodo(@RequestBody todo: Todo): Boolean = service.updateTodo(todo)
 }
